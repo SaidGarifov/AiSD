@@ -1,0 +1,72 @@
+import java.util.HashMap;
+import java.util.Map;
+
+public class Trie {
+    private static class Node {
+        Map<Character, Node> children = new HashMap<>();
+        boolean isWord;
+    }
+
+    private final Node root = new Node();
+
+    public void add(String word) {
+        Node current = root;
+
+        for (int i = 0; i < word.length(); i++) {
+            char c = word.charAt(i);
+
+            if (!current.children.containsKey(c)) {
+                current.children.put(c, new Node());
+            }
+
+            current = current.children.get(c);
+        }
+
+        current.isWord = true;
+    }
+
+    public boolean search(String word) {
+        Node current = root;
+
+        for (int i = 0; i < word.length(); i++) {
+            char c = word.charAt(i);
+            current = current.children.get(c);
+
+            if (current == null) {
+                return false;
+            }
+        }
+
+        return current.isWord;
+    }
+
+    public boolean remove(String word) {
+        return remove(root, word, 0);
+    }
+
+    private boolean remove(Node current, String word, int index) {
+        if (index == word.length()) {
+            if (!current.isWord) {
+                return false;
+            }
+
+            current.isWord = false;
+            return true;
+        }
+
+        char c = word.charAt(index);
+        Node next = current.children.get(c);
+
+        if (next == null) {
+            return false;
+        }
+
+        boolean removed = remove(next, word, index + 1);
+
+        if (removed && !next.isWord && next.children.isEmpty()) {
+            current.children.remove(c);
+        }
+
+        return removed;
+    }
+}
